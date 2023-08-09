@@ -20,12 +20,6 @@ case class Account(transactions: Seq[Int] = Seq.empty) {
   private def ensureAmountToWithdrawIsNotZero(amount: Int): Unit =
     if (amount == 0) throw new InvalidArgumentException
 
-  private def ensureAmountToDepositIsNotNegative(amount: Int): Unit =
-    if (amount < 0) throw new InvalidArgumentException
-
-  private def ensureAmountToDepositIsNotZero(amount: Int): Unit =
-    if (amount == 0) throw new InvalidArgumentException
-
   def deposit(amount: Int): Account = {
     ensureAmountToDepositIsNotNegative(amount)
     ensureAmountToDepositIsNotZero(amount)
@@ -33,11 +27,22 @@ case class Account(transactions: Seq[Int] = Seq.empty) {
     copy(transactions = transactions :+ amount)
   }
 
+  private def ensureAmountToDepositIsNotNegative(amount: Int): Unit =
+    if (amount < 0) throw new InvalidArgumentException
+
+  private def ensureAmountToDepositIsNotZero(amount: Int): Unit =
+    if (amount == 0) throw new InvalidArgumentException
+
   def printStatement(): String = {
-    val transactionsWithIndex: Seq[(Int, Int)] = transactions.zipWithIndex
-    "Date\tAmount\tBalance\n" + transactionsWithIndex.map {
-      case (transaction, index) => s"24.12.2015\t${if(transaction > 0) "+" else ""}${transaction}\t${transactionsWithIndex.filter(_._2 <= index).map(_._1).sum}"
-    }.mkString("\n") + s"${if(transactions.nonEmpty) "\n" else ""}"
+    type ProvisionalStatement = (String, Int)
+    transactions
+      .foldLeft[ProvisionalStatement](("Date\tAmount\tBalance\n", 0)) {
+        case ((statement, currentBalance), transaction) =>
+          val newBalance: Int = currentBalance + transaction
+          val sign: String = if (transaction > 0) "+" else ""
+          val line: String = s"24.12.2015\t$sign$transaction\t$newBalance\n"
+          (statement + line, newBalance)
+      }._1
   }
 
 }
