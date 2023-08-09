@@ -33,8 +33,11 @@ case class Account(transactions: Seq[Int] = Seq.empty) {
     copy(transactions = transactions :+ amount)
   }
 
-  def printStatement(): String = "Date\tAmount\tBalance\n" + transactions.map {
-    transaction => s"24.12.2015\t+$transaction\t$transaction"
-  }.mkString("\n")
+  def printStatement(): String = {
+    val transactionsWithIndex: Seq[(Int, Int)] = transactions.zipWithIndex
+    "Date\tAmount\tBalance\n" + transactionsWithIndex.map {
+      case (transaction, index) => s"24.12.2015\t${if(transaction > 0) "+" else ""}${transaction}\t${transactionsWithIndex.filter(_._2 <= index).map(_._1).sum}"
+    }.mkString("\n") + s"${if(transactions.nonEmpty) "\n" else ""}"
+  }
 
 }

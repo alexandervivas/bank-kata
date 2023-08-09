@@ -22,7 +22,7 @@ class AccountSpec extends munit.FunSuite {
 
     assertEquals(
       statement,
-      s"Date\tAmount\tBalance\n24.12.2015\t+$amount\t$amount",
+      s"Date\tAmount\tBalance\n24.12.2015\t+$amount\t$amount\n",
       "El balance debe aumentar cuando se realice un depósito"
     )
   }
@@ -70,6 +70,20 @@ class AccountSpec extends munit.FunSuite {
     intercept[example.exceptions.InvalidArgumentException] {
       account.withdraw(amount)
     }
+  }
+
+  test("Validar que al realizar un retiro, el balance de la cuenta disminuye") {
+    val initialBalance: Int = 500
+    val amount: Int = 100
+    val account: Account = Account().deposit(initialBalance).withdraw(amount)
+
+    val statement: String = account.printStatement()
+
+    assertEquals(
+      statement,
+      s"Date\tAmount\tBalance\n24.12.2015\t+$initialBalance\t$initialBalance\n24.12.2015\t-$amount\t${initialBalance - amount}\n",
+      "El balance debe disminuir cuando se realiza un retiro"
+    )
   }
 
 }
