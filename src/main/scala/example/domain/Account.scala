@@ -3,11 +3,8 @@ package example.domain
 import example.exceptions.{InvalidArgumentException, NegativeBalanceException}
 
 import java.time.ZoneOffset
-import java.time.format.DateTimeFormatter
 
 case class Account(timeWrapper: ZonedDateTimeWrapper = ZonedDateTimeWrapper(), transactions: Seq[Transaction] = Seq.empty) {
-
-  private lazy val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
 
   def withdraw(amount: Int): Account = {
     ensureAmountToWithdrawIsNotZero(amount)
@@ -47,9 +44,8 @@ case class Account(timeWrapper: ZonedDateTimeWrapper = ZonedDateTimeWrapper(), t
     transactions
       .foldLeft[ProvisionalStatement](("Date\tAmount\tBalance\n", 0)) {
         case ((statement, currentBalance), transaction) =>
-          val newBalance: Int = currentBalance + transaction.amount
-          val sign: String = if (transaction.amount > 0) "+" else ""
-          val line: String = s"${transaction.date.format(dateFormatter)}\t$sign${transaction.amount}\t$newBalance\n"
+          val newBalance: Int = currentBalance + transaction
+          val line: String = s"$transaction\t$newBalance\n"
           (statement + line, newBalance)
       }._1
   }
